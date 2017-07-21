@@ -6,12 +6,11 @@
     , stdlib
     , crypto
     , sasl
-
     , cowboy
     , cowboy_swagger
-    , jiffy
-    , katana
+    , jsx
     , sumo_db
+    , mnesia
     ]},
   {modules, []},
   {mod, {sr_test, []}},

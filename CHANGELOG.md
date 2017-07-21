@@ -1,14 +1,132 @@
 # Change Log
 
+## [0.3.4](https://github.com/inaka/sumo_rest/tree/0.3.4) (2017-03-10)
+[Full Changelog](https://github.com/inaka/sumo_rest/compare/0.3.3...0.3.4)
+
+**Closed issues:**
+
+- Wrong specs in sr\_single\_entity\_handler \(handle\_put and handle\_patch\) [\#80](https://github.com/inaka/sumo_rest/issues/80)
+- Missing option in type spec `sr\_json: json\(\)` [\#79](https://github.com/inaka/sumo_rest/issues/79)
+
+**Merged pull requests:**
+
+- \[\#80\] wrong return value on specs [\#82](https://github.com/inaka/sumo_rest/pull/82) ([ferigis](https://github.com/ferigis))
+- \[\#79\] missing spec added [\#81](https://github.com/inaka/sumo_rest/pull/81) ([ferigis](https://github.com/ferigis))
+- Review all handlers in sample application to be verbose [\#77](https://github.com/inaka/sumo_rest/pull/77) ([lucafavatella](https://github.com/lucafavatella))
+- Correct usage of cowboy `compress` option, and clarify type by comment [\#76](https://github.com/inaka/sumo_rest/pull/76) ([lucafavatella](https://github.com/lucafavatella))
+- Highlight the role of the `:id` binding in cowboy route [\#75](https://github.com/inaka/sumo_rest/pull/75) ([lucafavatella](https://github.com/lucafavatella))
+- Bump sumo\_db to the latest point release of sumo\_db 0.6.x [\#74](https://github.com/inaka/sumo_rest/pull/74) ([lucafavatella](https://github.com/lucafavatella))
+- List mnesia as dependency of test application [\#72](https://github.com/inaka/sumo_rest/pull/72) ([lucafavatella](https://github.com/lucafavatella))
+- Plant CI [\#71](https://github.com/inaka/sumo_rest/pull/71) ([lucafavatella](https://github.com/lucafavatella))
+
+## [0.3.3](https://github.com/inaka/sumo_rest/tree/0.3.3) (2017-02-24)
+[Full Changelog](https://github.com/inaka/sumo_rest/compare/0.3.2...0.3.3)
+
+**Closed issues:**
+
+- Version Bump to 0.3.3 [\#68](https://github.com/inaka/sumo_rest/issues/68)
+- Add sumo\_rest\_doc:from\_ctx/1 callback [\#66](https://github.com/inaka/sumo_rest/issues/66)
+- Version Bump to 0.3.2 [\#64](https://github.com/inaka/sumo_rest/issues/64)
+
+**Merged pull requests:**
+
+- \[\#68\] Version Bump to 0.3.3 [\#69](https://github.com/inaka/sumo_rest/pull/69) ([ferigis](https://github.com/ferigis))
+- Ferigis.66.add from ctx [\#67](https://github.com/inaka/sumo_rest/pull/67) ([ferigis](https://github.com/ferigis))
+
+## [0.3.2](https://github.com/inaka/sumo_rest/tree/0.3.2) (2017-02-15)
+[Full Changelog](https://github.com/inaka/sumo_rest/compare/0.3.1...0.3.2)
+
+**Closed issues:**
+
+- POST requests should return 422 instead of 409 when duplication\_conditions fail [\#62](https://github.com/inaka/sumo_rest/issues/62)
+- Version Bump to 0.3.1 [\#60](https://github.com/inaka/sumo_rest/issues/60)
+
+**Merged pull requests:**
+
+- \[\#64\] Version Bump to 0.3.2 [\#65](https://github.com/inaka/sumo_rest/pull/65) ([ferigis](https://github.com/ferigis))
+- \[\#62\] replacing 409 by 422 [\#63](https://github.com/inaka/sumo_rest/pull/63) ([ferigis](https://github.com/ferigis))
+
+## [0.3.1](https://github.com/inaka/sumo_rest/tree/0.3.1) (2017-02-02)
+[Full Changelog](https://github.com/inaka/sumo_rest/compare/0.3.0...0.3.1)
+
+**Closed issues:**
+
+- DELETE fails if the entity id type is integer [\#58](https://github.com/inaka/sumo_rest/issues/58)
+
+**Merged pull requests:**
+
+- \[\#60\] Bump Version to 0.3.1 [\#61](https://github.com/inaka/sumo_rest/pull/61) ([ferigis](https://github.com/ferigis))
+- \[\#58\] addressing the issue with non binary ids [\#59](https://github.com/inaka/sumo_rest/pull/59) ([ferigis](https://github.com/ferigis))
+
+## [0.3.0](https://github.com/inaka/sumo_rest/tree/0.3.0) (2017-01-30)
+[Full Changelog](https://github.com/inaka/sumo_rest/compare/0.2.1...0.3.0)
+
+**Closed issues:**
+
+- Version Bump to 0.3.0 [\#55](https://github.com/inaka/sumo_rest/issues/55)
+- Change id/1 by  duplication\_conditions/1 to sumo\_rest\_doc [\#53](https://github.com/inaka/sumo_rest/issues/53)
+- Error with rebar3 compile if sumo\_rest is fetched from hex.pm [\#49](https://github.com/inaka/sumo_rest/issues/49)
+
+**Merged pull requests:**
+
+- \[\#55\] Version Bump to 0.3.0 [\#57](https://github.com/inaka/sumo_rest/pull/57) ([ferigis](https://github.com/ferigis))
+- \[\#53\] update the README.md accordingly [\#56](https://github.com/inaka/sumo_rest/pull/56) ([ferigis](https://github.com/ferigis))
+- \[\#53\] replacing id/1 callback by duplication\_conditions/1 [\#54](https://github.com/inaka/sumo_rest/pull/54) ([ferigis](https://github.com/ferigis))
+
+## [0.2.1](https://github.com/inaka/sumo_rest/tree/0.2.1) (2016-09-14)
+[Full Changelog](https://github.com/inaka/sumo_rest/compare/0.2.0...0.2.1)
+
+**Closed issues:**
+
+- Version Bump to 0.2.1 [\#47](https://github.com/inaka/sumo_rest/issues/47)
+- Error results from sumo\_rest\_doc's update callback are improperly handled [\#44](https://github.com/inaka/sumo_rest/issues/44)
+- Add "\_=\>\_" to the state\(\) types [\#43](https://github.com/inaka/sumo_rest/issues/43)
+
+**Merged pull requests:**
+
+- \[\#47\] Version Bump to 0.2.1 [\#48](https://github.com/inaka/sumo_rest/pull/48) ([ferigis](https://github.com/ferigis))
+- \[\#44\] update error handled with sr\_json:error/1 [\#46](https://github.com/inaka/sumo_rest/pull/46) ([ferigis](https://github.com/ferigis))
+- \[\#43\] state\(\) types fixed [\#45](https://github.com/inaka/sumo_rest/pull/45) ([ferigis](https://github.com/ferigis))
+
+## [0.2.0](https://github.com/inaka/sumo_rest/tree/0.2.0) (2016-09-12)
+[Full Changelog](https://github.com/inaka/sumo_rest/compare/0.1.2...0.2.0)
+
+**Fixed bugs:**
+
+- Properly differentiate between sumo\_db's models and modules [\#40](https://github.com/inaka/sumo_rest/pull/40) ([elbrujohalcon](https://github.com/elbrujohalcon))
+
+**Closed issues:**
+
+- Move this project to Rebar3 [\#41](https://github.com/inaka/sumo_rest/issues/41)
+- Upgrade dependencies [\#38](https://github.com/inaka/sumo_rest/issues/38)
+- rebar3 compile -\> failing [\#30](https://github.com/inaka/sumo_rest/issues/30)
+- Update repo and make it ready for hex.pm [\#28](https://github.com/inaka/sumo_rest/issues/28)
+- Hex Package [\#9](https://github.com/inaka/sumo_rest/issues/9)
+- Use query-string for filtering [\#8](https://github.com/inaka/sumo_rest/issues/8)
+- Increase swagger integration [\#7](https://github.com/inaka/sumo_rest/issues/7)
+
+**Merged pull requests:**
+
+- \[\#38\] updated sumo\_db dep and now it is working with OTP-19 [\#39](https://github.com/inaka/sumo_rest/pull/39) ([ferigis](https://github.com/ferigis))
+- Updated readme [\#37](https://github.com/inaka/sumo_rest/pull/37) ([HernanRivasAcosta](https://github.com/HernanRivasAcosta))
+- Handle params in query-string [\#35](https://github.com/inaka/sumo_rest/pull/35) ([zgbjgg](https://github.com/zgbjgg))
+- resolves \#7 [\#33](https://github.com/inaka/sumo_rest/pull/33) ([zsoci](https://github.com/zsoci))
+- \[Fix \#30\] Fix rebar3 compilation by updating swagger, trails and sumo\_db dependencies [\#31](https://github.com/inaka/sumo_rest/pull/31) ([harenson](https://github.com/harenson))
+- \[Fix \#28\] Update dependencies; Update erlang.mk; Add ruleset to elvis config; Add rebar.config file [\#29](https://github.com/inaka/sumo_rest/pull/29) ([harenson](https://github.com/harenson))
+- Version Bump to 0.2.0 [\#42](https://github.com/inaka/sumo_rest/pull/42) ([elbrujohalcon](https://github.com/elbrujohalcon))
+- Make the project rebar3 compatible [\#6](https://github.com/inaka/sumo_rest/pull/6) ([elbrujohalcon](https://github.com/elbrujohalcon))
+
 ## [0.1.2](https://github.com/inaka/sumo_rest/tree/0.1.2) (2016-03-11)
 [Full Changelog](https://github.com/inaka/sumo_rest/compare/0.1.1...0.1.2)
 
 **Closed issues:**
 
+- Bump version to 0.1.2 [\#25](https://github.com/inaka/sumo_rest/issues/25)
 - Missing iso8601 in sumo\_rest.app.src applications list [\#24](https://github.com/inaka/sumo_rest/issues/24)
 
 **Merged pull requests:**
 
+- \[Fix \#25\] Bump version to 0.1.2 [\#27](https://github.com/inaka/sumo_rest/pull/27) ([harenson](https://github.com/harenson))
 - \[Fix \#24\] Add iso8601 to the app.src applications list [\#26](https://github.com/inaka/sumo_rest/pull/26) ([harenson](https://github.com/harenson))
 
 ## [0.1.1](https://github.com/inaka/sumo_rest/tree/0.1.1) (2015-12-15)

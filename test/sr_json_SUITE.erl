@@ -4,6 +4,7 @@
 -export([ jsons/1
         , dates/1
         , nulls/1
+        , types/1
         ]).
 
 -spec all() -> [atom()].
@@ -24,7 +25,7 @@ jsons(_Config) ->
     , <<"0.3">>
     , <<"\"a string\"">>
     , <<"[true,true,false]">>
-    , <<"{\"c\":[1,2,3],\"a\":\"b\"}">>
+    , <<"{\"a\":\"b\",\"c\":[1,2,3]}">>
     ],
   lists:foreach(WorksWith, Jsons),
 
@@ -59,5 +60,18 @@ nulls(_Config) ->
 
   ct:comment("Leaves the rest untouched"),
   #{} = sr_json:decode_null(#{}),
+
+  {comment, ""}.
+
+-spec types(sr_test_utils:config()) -> {comment, string()}.
+types(_Config) ->
+  Nested = #{a => #{b => [1, #{c => [true, 1.2, <<"binary">>]}]}},
+  JsonTypes = [ [<<"binary">>, <<"binary">>, <<"binary">>]
+              , [1, 2, 3, 4, 5]
+              , [#{a => 1}, #{b => 2}, #{c => Nested}]
+              , Nested
+              , [<<"mixed">>, <<"list">>, Nested, 3, #{a => []}, a, true, 3.2]
+              ],
+  _ = [sr_json:encode(Json) || Json <- JsonTypes],
 
   {comment, ""}.

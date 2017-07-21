@@ -4,7 +4,7 @@
 -behaviour(sumo_doc).
 -behaviour(sumo_rest_doc).
 
--type key() :: binary().
+-type key() :: integer().
 -type value() :: binary() | iodata().
 
 -opaque element() ::
@@ -35,8 +35,9 @@
   [ to_json/1
   , from_json/1
   , location/2
-  , id/1
+  , duplication_conditions/1
   , update/2
+  , id_from_binding/1
   ]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -45,17 +46,17 @@
 
 -spec sumo_schema() -> sumo:schema().
 sumo_schema() ->
-  sumo:new_schema(?MODULE,
-    [ sumo:new_field(key,        string,   [id, not_null])
+  sumo:new_schema(elements,
+    [ sumo:new_field(key,        integer,  [id, not_null])
     , sumo:new_field(value,      string,   [not_null])
     , sumo:new_field(created_at, datetime, [not_null])
     , sumo:new_field(updated_at, datetime, [not_null])
     ]).
 
--spec sumo_sleep(element()) -> sumo:doc().
+-spec sumo_sleep(element()) -> sumo:model().
 sumo_sleep(Element) -> Element.
 
--spec sumo_wakeup(sumo:doc()) -> element().
+-spec sumo_wakeup(sumo:model()) -> element().
 sumo_wakeup(Element) -> Element.
 
 -spec to_json(element()) -> sr_json:json().
@@ -100,8 +101,19 @@ update(Element, Json) ->
 -spec location(element(), sumo_rest_doc:path()) -> binary().
 location(Element, Path) -> iolist_to_binary([Path, "/", key(Element)]).
 
--spec id(element()) -> key().
-id(Element) -> key(Element).
+-spec duplication_conditions(element()) ->
+  sumo_rest_doc:duplication_conditions().
+duplication_conditions(Element) -> [{key, '==', key(Element)}].
+
+%% this function is implemented for testing purposes. If your key is integer,
+%% binary or string this function is not needed.
+-spec id_from_binding(binary()) -> key().
+id_from_binding(BinaryId) ->
+  try binary_to_integer(BinaryId) of
+    Id -> Id
+  catch
+    error:badarg -> -1
+  end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% PUBLIC API

@@ -14,12 +14,8 @@
         , handle_post/3
         ]).
 
--type options() :: #{ path => string()
-                    , model => module()
-                    , verbose => boolean()
-                    }.
--type state() :: #{ opts => options()
-                  }.
+-type options() :: sr_state:options().
+-type state() :: sr_state:state().
 -export_type([state/0, options/0]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -41,7 +37,10 @@ init(_Transport, _Req, _Opts) ->
   {ok, cowboy_req:req(), state()}.
 rest_init(Req, Opts) ->
   Req1 = announce_req(Req, Opts),
-  {ok, Req1, #{opts => Opts}}.
+  #{model := Model} = Opts,
+  Module = sumo_config:get_prop_value(Model, module),
+  State = sr_state:new(Opts, Module),
+  {ok, Req1, State}.
 
 %% @doc Retrieves the list of allowed methods from Trails metadata.
 %%      Parses the metadata associated with this path and returns the
@@ -50,8 +49,9 @@ rest_init(Req, Opts) ->
 -spec allowed_methods(cowboy_req:req(), state()) ->
   {[binary()], cowboy_req:req(), state()}.
 allowed_methods(Req, State) ->
-  #{opts := #{path := Path}} = State,
-  #{metadata := Metadata} = trails:retrieve(Path),
+  #{path := Path} = sr_state:opts(State),
+  Trail = trails:retrieve(Path),
+  Metadata = trails:metadata(Trail),
   Methods = [atom_to_method(Method) || Method <- maps:keys(Metadata)],
   {Methods, Req, State}.
 
@@ -70,19 +70,19 @@ resource_exists(Req, State) ->
 -spec content_types_accepted(cowboy_req:req(), state()) ->
   {[{{binary(), binary(), '*'}, atom()}], cowboy_req:req(), state()}.
 content_types_accepted(Req, State) ->
-    #{opts := #{path := Path}} = State,
-    {Method, Req2} = cowboy_req:method(Req),
-    try
-        #{metadata := Metadata} = trails:retrieve(Path),
-        AtomMethod = method_to_atom(Method),
-        #{AtomMethod := #{consumes := Consumes}} = Metadata,
-        Handler = compose_handler_name(AtomMethod),
-        RetList = [{iolist_to_binary(X), Handler} || X <- Consumes],
-        {RetList, Req2, State}
-    catch
-        _:_ ->
-            {[{{<<"application">>, <<"json">>, '*'}, handle_post}], Req, State}
-    end.
+  #{path := Path} = sr_state:opts(State),
+  {Method, Req2} = cowboy_req:method(Req),
+  try
+    Trail = trails:retrieve(Path),
+    Metadata = trails:metadata(Trail),
+    AtomMethod = method_to_atom(Method),
+    #{AtomMethod := #{consumes := Consumes}} = Metadata,
+    Handler = compose_handler_name(AtomMethod),
+    RetList = [{iolist_to_binary(X), Handler} || X <- Consumes],
+    {RetList, Req2, State}
+  catch
+    _:_ -> {[{{<<"application">>, <<"json">>, '*'}, handle_post}], Req, State}
+  end.
 
 %% @doc Always returns "application/json" with <code>handle_get</code>.
 %% @see cowboy_rest:content_types_provided/2
@@ -91,19 +91,19 @@ content_types_accepted(Req, State) ->
 -spec content_types_provided(cowboy_req:req(), state()) ->
   {[{binary(), atom()}], cowboy_req:req(), state()}.
 content_types_provided(Req, State) ->
-    #{opts := #{path := Path}} = State,
-    {Method, Req2} = cowboy_req:method(Req),
-    try
-        #{metadata := Metadata} = trails:retrieve(Path),
-        AtomMethod = method_to_atom(Method),
-        #{AtomMethod := #{produces := Produces}} = Metadata,
-        Handler = compose_handler_name(AtomMethod),
-        RetList = [{iolist_to_binary(X), Handler} || X <- Produces],
-        {RetList, Req2, State}
-    catch
-        _:_ ->
-            {[{<<"application/json">>, handle_get}], Req, State}
-    end.
+  #{path := Path} = sr_state:opts(State),
+  {Method, Req2} = cowboy_req:method(Req),
+  try
+    Trail = trails:retrieve(Path),
+    Metadata = trails:metadata(Trail),
+    AtomMethod = method_to_atom(Method),
+    #{AtomMethod := #{produces := Produces}} = Metadata,
+    Handler = compose_handler_name(AtomMethod),
+    RetList = [{iolist_to_binary(X), Handler} || X <- Produces],
+    {RetList, Req2, State}
+  catch
+    _:_ -> {[{<<"application/json">>, handle_get}], Req, State}
+  end.
 
 %% @doc Returns the list of all entities.
 %%      Fetches the entities from <strong>SumoDB</strong> using the
@@ -113,7 +113,8 @@ content_types_provided(Req, State) ->
 -spec handle_get(cowboy_req:req(), state()) ->
   {iodata(), cowboy_req:req(), state()}.
 handle_get(Req, State) ->
-  #{opts := #{model := Model}} = State,
+  #{model := Model} = sr_state:opts(State),
+  Module = sr_state:module(State),
   {Qs, Req1} = cowboy_req:qs_vals(Req),
   Conditions = [ {binary_to_atom(Name, unicode),
     Value} || {Name, Value} <- Qs ],
@@ -128,21 +129,29 @@ handle_get(Req, State) ->
     [] -> sumo:find_all(Model);
     _  -> sumo:find_by(Model, Conditions)
   end,
-  Reply     = [Model:to_json(Entity) || Entity <- Entities],
+  Reply     = [Module:to_json(Entity) || Entity <- Entities],
   JSON      = sr_json:encode(Reply),
   {JSON, Req1, State}.
 
 %% @doc Creates a new entity.
-%%      To parse the body, it uses <code>from_json/2</code> from the
+%%      To parse the body, it uses <code>from_ctx</code> or
+%%      <code>from_json/2</code> from the
 %%      <code>model</code> provided in the options.
 -spec handle_post(cowboy_req:req(), state()) ->
   {{true, binary()} | false | halt, cowboy_req:req(), state()}.
 handle_post(Req, State) ->
-  #{opts := #{model := Model}} = State,
+  Module = sr_state:module(State),
   try
-    {ok, Body, Req1} = cowboy_req:body(Req),
-    Json             = sr_json:decode(Body),
-    case Model:from_json(Json) of
+    {SrRequest, Req1} = sr_request:from_cowboy(Req),
+    Result = case erlang:function_exported(Module, from_ctx, 1) of
+      false ->
+        Json = sr_request:body(SrRequest),
+        Module:from_json(Json);
+      true  ->
+        Context = #{req => SrRequest, state => State},
+        Module:from_ctx(Context)
+    end,
+    case Result of
       {error, Reason} ->
         Req2 = cowboy_req:set_resp_body(sr_json:error(Reason), Req1),
         {false, Req2, State};
@@ -152,7 +161,7 @@ handle_post(Req, State) ->
   catch
     _:conflict ->
       {ok, Req3} =
-        cowboy_req:reply(409, [], sr_json:error(<<"Duplicated entity">>), Req),
+        cowboy_req:reply(422, [], sr_json:error(<<"Duplicated entity">>), Req),
       {halt, Req3, State};
     _:badjson ->
       Req3 =
@@ -166,23 +175,24 @@ handle_post(Req, State) ->
 -spec handle_post(sumo:user_doc(), cowboy_req:req(), state()) ->
   {{true, binary()}, cowboy_req:req(), state()}.
 handle_post(Entity, Req1, State) ->
-  #{opts := #{model := Model, path := Path}} = State,
-  case erlang:function_exported(Model, id, 1) of
+  #{model := Model, path := Path} = sr_state:opts(State),
+  Module = sr_state:module(State),
+  case erlang:function_exported(Module, duplication_conditions, 1) of
     false -> proceed;
     true ->
-      Id = Model:id(Entity),
-      case sumo:find(Model, Id) of
+      Conditions = Module:duplication_conditions(Entity),
+      case sumo:find_one(Model, Conditions) of
         notfound -> proceed;
         Duplicate ->
-          error_logger:warning_msg(
-            "Duplicated ~p with id ~p: ~p", [Model, Id, Duplicate]),
+          error_logger:warning_msg( "Duplicated ~p with conditions ~p: ~p"
+                                  , [Model, Conditions, Duplicate]),
           throw(conflict)
       end
   end,
   PersistedEntity = sumo:persist(Model, Entity),
-  ResBody = sr_json:encode(Model:to_json(PersistedEntity)),
+  ResBody = sr_json:encode(Module:to_json(PersistedEntity)),
   Req2 = cowboy_req:set_resp_body(ResBody, Req1),
-  Location = Model:location(PersistedEntity, Path),
+  Location = Module:location(PersistedEntity, Path),
   {{true, Location}, Req2, State}.
 
 %% @doc Announces the Req.
